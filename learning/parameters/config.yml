@@ -1,0 +1,48 @@
+version: 2.1
+executors:
+  xenial:
+    parameters:
+      some-value:
+        type: string
+        default: foo
+    environment:
+      SOME_VAR: << parameters.some-value >>
+    docker:
+      - image: ubuntu:xenial
+  bionic:
+    docker:
+      - image: ubuntu:bionic
+
+jobs:
+  test:
+    parameters:
+      all:
+        description: include all files
+        type: boolean
+        default: false
+      after-deps:
+        description: "Steps that will be executed after dependencies are installed, but before tests are run"
+        type: steps
+        default: []  
+      e:
+        type: executor
+    executor: << parameters.e >>
+    steps:
+      - run: make
+      - run: ls <<# parameters.all >> -a <</ parameters.all >>
+      - steps: << parameters.after-deps >>
+      - run: make test
+
+workflows:
+  testing:
+    jobs:
+      - test:
+          e: bionic
+          all: true
+          after-deps:
+            - run: echo "The dependencies are installed"
+            - run: echo "And now I'm going to run the tests"
+      - test:
+          e:
+            name: xenial
+            some-value: foobar

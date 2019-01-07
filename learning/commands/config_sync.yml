@@ -1,0 +1,27 @@
+version: 2.1
+commands: # a reusable command with parameters
+  sync:
+    parameters:
+      from:
+        type: string
+      to:
+        type: string
+      overwrite:
+        default: false
+        type: boolean
+    steps:
+      - run: # a parameterized run step
+          name: Deploy to S3
+          command: "aws s3 sync << parameters.from >> << parameters.to >><<# parameters.overwrite >> --delete<</ parameters.overwrite >>"
+executors: # a reusable executor
+  aws:
+    docker:
+      - image: cibuilds/aws:1.15
+jobs: # a job that invokes the `aws` executor and the `sync` command
+  deploy2s3:
+    executor: aws
+    steps:
+      - sync:
+          from: .
+          to: "s3://mybucket_uri"
+          overwrite: true
