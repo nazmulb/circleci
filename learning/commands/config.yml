@@ -1,0 +1,19 @@
+version: 2.1
+commands:
+  sayhello:
+    description: "A very simple command for demonstration purposes"
+    parameters:
+      to:
+        type: string
+        default: "Hello World"
+    steps:
+      - run: echo Hello << parameters.to >>
+
+jobs:
+  myjob:
+    docker:
+      - image: "circleci/node:9.6.1"
+    steps:
+      - checkout
+      - sayhello:
+          to: "Nazmul"

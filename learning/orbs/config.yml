@@ -1,0 +1,14 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@volatile
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - slack/notify:
+          message: Build of ${CIRCLE_BRANCH} started.
+          color: '#42e2f4'
+          webhook: https://hooks.slack.com/services/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
+      - checkout
+      - run: echo "A first hello"

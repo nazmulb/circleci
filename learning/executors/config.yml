@@ -1,0 +1,33 @@
+version: 2
+executors:
+  python:
+    docker:
+      - image: python:3.7.0
+      - image: rabbitmq:3.6-management-alpine
+    environment:
+      ENV: ci
+      TESTS: all
+    shell: /bin/bash    
+    working_directory: ~/project
+
+jobs:
+  build:
+    executor: python
+    steps:
+      - checkout
+      - run: echo "hello world"
+
+  test:
+    executor: python
+    environment:
+      TESTS: unit
+    steps:
+      - checkout
+      - run: echo "how are you?"
+
+workflows:
+  version: 2
+  build_test:
+    jobs:
+      - build
+      - test
