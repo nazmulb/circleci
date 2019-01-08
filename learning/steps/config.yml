@@ -1,0 +1,20 @@
+version: 2.1
+jobs:
+  bar:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          command: echo "building"
+      - run:
+          command: echo "testing"
+workflows:
+  build:
+    jobs:
+      - bar:
+          pre-steps:
+            - run:
+                command: echo "install custom dependency"
+          post-steps:
+            - run:
+                command: echo "upload artifact to s3"

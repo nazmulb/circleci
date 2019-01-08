@@ -1,0 +1,41 @@
+version: 2.1
+jobs:
+  sayhello:
+    parameters:
+      saywhat:
+        description: "To whom shall we say hello?"
+        default: "World"
+        type: string
+    machine: true
+    steps:
+      - say:
+          # Since the command "say" doesn't define a default
+          # value for the "saywhat" parameter, it must be
+          # passed in manually
+          saywhat: << parameters.saywhat >>
+
+commands:
+  say:
+    parameters:
+      saywhat:
+        type: string
+    steps:
+      - run: echo Hello "<< parameters.saywhat >>"
+
+workflows:
+  build:
+    jobs:
+      - loadsay
+      # This doesn't need an explicit name as it has no downstream dependencies
+      - sayhello:
+          saywhat: Everyone
+          requires:
+            - loadsay
+      # This needs an explicit name for saygoodbye to require it as a job dependency
+      - sayhello:
+          name: SayHelloChad
+          saywhat: Chad
+      # Uses explicitly defined "sayhello"
+      - saygoodbye:
+          requires:
+            - SayHelloChad
