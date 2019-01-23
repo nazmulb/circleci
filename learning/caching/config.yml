@@ -28,7 +28,7 @@ jobs:
           root: ~/app
           paths:
             - .
-test:
+  test:
     executor: node
     steps:
       - attach_workspace:
@@ -36,15 +36,6 @@ test:
       - run:
           name: Test
           command: npm test
-      - run:
-          name: Generate code coverage
-          command: './node_modules/.bin/nyc report --reporter=text-lcov'
-      - store_artifacts:
-          path: test-results.xml
-          prefix: tests
-      - store_artifacts:
-          path: coverage
-          prefix: coverage
 workflows:
   version: 2
   build_and_test:
