@@ -1,0 +1,110 @@
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: 'circleci/node:9.8.0'
+    shell: /bin/bash
+    working_directory: ~/app
+    environment:
+      SLACK_WEBHOOK: https://hooks.slack.com/services/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
+   
+orbs:
+  slack: circleci/slack@volatile
+  docker-publish: circleci/docker-publish@0.1.4
+
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json checksum
+            # when this file is changed, this key will fail
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Find the most recently generated cache used from any branch
+            - v1-npm-deps-
+      - run:
+          name: Install Node.js dependencies with Npm
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/app
+          paths:
+            - .
+
+  test:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Test
+          command: npm test
+      - run:
+          name: Save test results
+          command: |
+            npm install nyc mocha-junit-reporter
+            mkdir ~/reports
+            ./node_modules/.bin/nyc ./node_modules/.bin/mocha spec.js --recursive --timeout=10000 --exit --reporter mocha-junit-reporter --reporter-options mochaFile=~/reports/mocha/test-results.xml
+          environment:
+            MOCHA_FILE: ~/reports/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  
+  publish:
+      executor: node
+      steps:
+        - attach_workspace:
+            at: ~/app
+        - setup_remote_docker
+        - docker-publish/check # DOCKER_LOGIN & DOCKER_PASSWORD need to be set as environment variable in the project of circleci.com.
+        - docker-publish/build: # It would build the docker image from Dockerfile.
+            tag: latest
+        - docker-publish/deploy # It would publish the images to docker hub.
+
+  deploy:
+      executor: node
+      steps:
+        - attach_workspace:
+            at: ~/app
+        - setup_remote_docker
+        - run:
+            name: Deploy
+            command: |
+              sh ./.circleci/deploy.sh
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:
+          pre-steps:
+            - slack/notify:
+                message: Build of ${CIRCLE_BRANCH} started.
+                color: '#42e2f4'
+                webhook: ${SLACK_WEBHOOK}
+      - test:
+          requires:
+            - build
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy:
+          post-steps:
+            - slack/status:
+                webhook: ${SLACK_WEBHOOK}
+          requires:
+            - publish
+          filters:
+            branches:
+              only: master
