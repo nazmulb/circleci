@@ -3,3 +3,4 @@ https://circleci.com/blog/persisting-data-in-workflows-when-to-use-caching-artif
 https://www.educba.com/jenkins-vs-circleci/
 https://stackshare.io/stackups/circleci-vs-drone-io-vs-jenkins
 https://circleci.com/continuous-integration/
+https://hackernoon.com/continuous-integration-circleci-vs-travis-ci-vs-jenkins-41a1c2bd95f5
