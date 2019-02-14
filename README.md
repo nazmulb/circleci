@@ -78,4 +78,4 @@ jobs:
       - run: echo "A first hello"
 ```
 
-Please commit and push this changes in your new repo circleci-101.
+Please commit and push this changes in your new repo `circleci-101`.
