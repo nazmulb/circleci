@@ -56,3 +56,26 @@ jobs:
 
 #### Knowledgeable Support
 - <a href="https://discuss.circleci.com/">Active community</a> forums provide access to other developers with similar environments.
+
+## How to set up CircleCI for CI/CD Pipeline?
+
+### Step 1 - Creating a Repository:
+
+Navigate to your account on GitHub.com and create a new repo <a href="https://discuss.circleci.com/">circleci-101</a> with a README file.
+
+### Step 2 - Adding a .yml File:
+
+Please create a folder `.circleci` and add a YAML file `config.yml`. Please add the following contents in `.circleci/config.yml`:
+
+```yml
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - checkout
+      - run: echo "A first hello"
+```
+
+Please commit and push this changes in your new repo circleci-101.
