@@ -2,3 +2,4 @@ https://circleci.com/
 https://circleci.com/blog/persisting-data-in-workflows-when-to-use-caching-artifacts-and-workspaces/
 https://www.educba.com/jenkins-vs-circleci/
 https://stackshare.io/stackups/circleci-vs-drone-io-vs-jenkins
+https://circleci.com/continuous-integration/
