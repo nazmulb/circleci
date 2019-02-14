@@ -61,7 +61,7 @@ jobs:
 
 ### Step 1 - Creating a Repository:
 
-Navigate to your account on GitHub.com and create a new repo <a href="https://discuss.circleci.com/">circleci-101</a> with a README file.
+Navigate to your account on GitHub.com and create a new repo <a href="https://github.com/nazmulb/circleci-101">circleci-101</a> with a README file.
 
 ### Step 2 - Adding a .yml File:
 
