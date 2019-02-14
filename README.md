@@ -10,7 +10,7 @@
 
 ## What is CircleCI?
 
-CircleCI is Continuous Integration, a development practice which is being used by software teams allowing them to to build, test and deploy applications easier and quicker on multiple platforms.
+CircleCI is Continuous Integration, a development practice which is being used by software teams allowing them to build, test and deploy applications easier and quicker on multiple platforms.
 
 CircleCI uses a <a href="https://en.wikipedia.org/wiki/YAML">YAML</a> (`.circleci/config.yml`) configuration file:
 
