@@ -253,6 +253,43 @@ jobs:
           paths:
             - ./node_modules
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
+```
+
+### Workspaces:
+
+When a Workspace is declared in a job, one or more files or directories can be added. Each addition creates a new layer in the Workspace filesystem. Downstreams jobs can then use this Workspace for its own needs or add more layers on top.
+
+Unlike caching, Workspaces are not shared between runs as they no longer exists once a Workflow is complete. 
+
+<img alt="Workspaces" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Workspaces.png" width="950px" />
+
+```yml
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: 'circleci/node:8'
+    shell: /bin/bash
+    working_directory: ~/app
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json checksum
+            # when this file is changed, this key will fail
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Find the most recently generated cache used from any branch
+            - v1-npm-deps-
+      - run:
+          name: Install Node.js dependencies with Npm
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
       - persist_to_workspace:
           root: ~/app
           paths:
@@ -275,11 +312,70 @@ workflows:
             - build
 ```
 
-### Workspaces:
-
-<img alt="Workspaces" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Workspaces.png" width="950px" />
-
-
 ### Artifacts:
 
+Artifacts persist data after a workflow is completed and may be used for longer-term storage of the outputs of your build process. For instance if you have a Java project your build will most likely produce a `.jar` file of your code. This code will be validated by your tests. If the whole build/test process passes, then the output of the process (the `.jar`) can be stored as an artifact. The `.jar` file is available to download from our artifacts system long after the workflow that created it has finished.
+
 <img alt="Artifact" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Artifact.png" width="950px" />
+
+```yml
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: 'circleci/node:8'
+    shell: /bin/bash
+    working_directory: ~/app
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json checksum
+            # when this file is changed, this key will fail
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Find the most recently generated cache used from any branch
+            - v1-npm-deps-
+      - run:
+          name: Install Node.js dependencies with Npm
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/app
+          paths:
+            - .
+  test:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Test
+          command: npm test
+      - run:
+          name: Save test results
+          command: |
+            npm install nyc mocha-junit-reporter
+            mkdir ~/reports
+            ./node_modules/.bin/nyc ./node_modules/.bin/mocha spec.js --recursive --timeout=10000 --exit --reporter mocha-junit-reporter --reporter-options mochaFile=~/reports/mocha/test-results.xml
+          environment:
+            MOCHA_FILE: ~/reports/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+```
