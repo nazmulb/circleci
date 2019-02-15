@@ -57,7 +57,7 @@ jobs:
 #### Knowledgeable Support
 - <a href="https://discuss.circleci.com/">Active community</a> forums provide access to other developers with similar environments.
 
-## How to set up CircleCI for CI/CD Pipeline?
+## How to set up CircleCI?
 
 ### Step 1 - Creating a Repository:
 
