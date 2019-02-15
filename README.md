@@ -479,3 +479,92 @@ workflows:
 ```
 
 For <a href="https://circleci.com/docs/2.0/artifacts/">more info</a>.
+
+### Orbs:
+
+Orbs are packages of config that you can use to quickly get started with the CircleCI platform. Orbs enable you to share, standardize, and simplify config across your projects. Refer to the <a href="https://circleci.com/orbs/registry/">CircleCI Orbs Registry</a> for the complete list of certified orbs.
+
+If your project was added to CircleCI prior to 2.1, you must enable <a href="https://circleci.com/docs/2.0/build-processing/">Build Processing</a> to use the `orbs` key.
+
+```yml
+version: 2.1
+orbs:
+  slack: circleci/slack@volatile
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - slack/notify:
+          message: Build of ${CIRCLE_BRANCH} started.
+          color: '#42e2f4'
+          webhook: https://hooks.slack.com/services/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
+      - checkout
+      - run: echo "A first hello"
+```
+
+You can <a href="https://circleci.com/docs/2.0/using-orbs/">read more</a>.
+
+### Executors:
+
+Executors define the environment in which the steps of a job will be run. When you declare a `job` in CircleCI configuration, you define the type of environment (e.g. `docker`, `machine`, `macos`, etc.) to run in, in addition to any other parameters of that environment, such as:
+
+- environment variables to populate
+- which shell to use
+- what size `resource_class` to use
+
+When you declare an executor in a configuration outside of `jobs`, you can use these declarations for all jobs in the scope of that declaration, enabling you to reuse a single executor definition across multiple jobs.
+
+An executor definition has the following keys available:
+
+- `docker`, `machine`, or `macos`
+- `environment`
+- `working_directory`
+- `shell`
+- `resource_class`
+
+The example below shows an example of using an executor:
+
+```yml
+version: 2.1
+executors:
+  python:
+    docker:
+      - image: python:3.7.0
+      - image: rabbitmq:3.6-management-alpine
+    environment:
+      ENV: ci
+      TESTS: all
+    shell: /bin/bash    
+    working_directory: ~/project
+
+jobs:
+  build:
+    executor: python
+    steps:
+      - checkout
+      - run: echo "hello world"
+
+  test:
+    executor: python
+    environment:
+      TESTS: unit
+    steps:
+      - checkout
+      - run: echo "how are you?"
+
+workflows:
+  version: 2
+  build_test:
+    jobs:
+      - build
+      - test
+```
+
+### Using the CircleCI Local CLI:
+
+<a href="https://circleci.com/docs/2.0/local-cli/">TODO</a>
+
+### Debugging with SSH:
+
+<a href="https://circleci.com/docs/2.0/ssh-access-jobs/">TODO</a>
