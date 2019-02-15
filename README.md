@@ -6,7 +6,7 @@
 
 **Continuous Delivery (CD)** - It aims at building, testing, and releasing software with greater speed and frequency. Delivery team -> Version Control -> Build & unit tests -> Automated acceptance tests (e2e) -> UAT -> Release (Deployment, DevOps) 
 
-<img alt="CI/CD Process" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/cicd.png" width="850px" />
+<img alt="CI/CD Process" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/cicd.png" width="950px" />
 
 ## What is CircleCI?
 
@@ -84,11 +84,11 @@ Please commit and push this changes in your new repo `circleci-101`.
 
 - For this step, you will need a CircleCI account. Visit the CircleCI <a href="https://circleci.com/signup">signup page</a> and click “Sign Up with GitHub”. You will need to give CircleCI access to your GitHub account to run your builds. If you already have a CircleCI account then you can navigate to your <a href="https://circleci.com/dashboard">dashboard</a>.
 - Next, you need to add you repo as a new project on CircleCI. To add your new repo, ensure that your GitHub account is selected in the dropdown in the upper-left, find the repository you just created below, and click the **Setup project** button next to it.
-<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project.png" width="850px" />
+<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project.png" width="950px" />
 
 - On the next screen, you’re given some options for configuring your project on CircleCI. Leave everything as-is for now and just click the **Start building** button a bit down the page on the right. 
-<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project2.png" width="850px" />
-<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project3.png" width="850px" />
+<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project2.png" width="950px" />
+<img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project3.png" width="950px" />
 
 ### Step 4 - Running Your First CircleCI Build!:
 
@@ -98,7 +98,7 @@ You should see your build start to run automatically—and pass! So, what just h
 - **Checkout code:** CircleCI checked out your GitHub repository and “cloned” it into the virtual environment launched in Step 1 from the `config.yml`.
 - **echo:** This was the only other instruction in your `config.yml` file: CircleCI ran the `echo` command with the input “A first hello”.
 
-<img alt="Running Your First CircleCI Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-pass.png" width="850px" />
+<img alt="Running Your First CircleCI Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-pass.png" width="950px" />
 
 ### Step 5 - Breaking Your Build!:
 
@@ -115,4 +115,4 @@ jobs:
       - run: notacommand
 ```
 
-<img alt="Breaking Your Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-failed.png" width="850px" />
+<img alt="Breaking Your Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-failed.png" width="950px" />
