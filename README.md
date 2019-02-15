@@ -89,3 +89,13 @@ Please commit and push this changes in your new repo `circleci-101`.
 - On the next screen, you’re given some options for configuring your project on CircleCI. Leave everything as-is for now and just click the **Start building** button a bit down the page on the right. 
 <img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project2.png" width="850px" />
 <img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project3.png" width="850px" />
+
+### Step 4 - Running Your First CircleCI Build!:
+
+You should see your build start to run automatically—and pass! So, what just happened? Click on the green Success button on the CircleCI dashboard to investigate the following parts of the run:
+
+- **Spin up environment:** CircleCI used the `circleci/node:7.10` Docker image to launch a virtual computing environment.
+- **Checkout code:** CircleCI checked out your GitHub repository and “cloned” it into the virtual environment launched in Step 1 from the `config.yml`.
+- **echo:** This was the only other instruction in your `config.yml` file: CircleCI ran the `echo` command with the input “A first hello”.
+
+<img alt="Running Your First CircleCI Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-pass.png" width="850px" />
