@@ -132,6 +132,20 @@ Steps are actions that need to be taken to perform your job. Steps are usually a
           command: make test
 #...     
 ```
+Here `run` is a step type. The `name` attribute is used by the UI for display purposes. The `command` attribute is specific for `run` step and defines command to execute. 
+
+It’s possible to specify a multi-line `command`, each line of which will be run in the same shell:
+
+```yml
+- run:
+    name: Running tests
+    command: |
+      echo Running test
+      mkdir -p /tmp/test-results
+      make test
+```
+
+For <a href="https://circleci.com/docs/2.0/configuration-reference/#steps">more info</a>.
 
 ### Image:
 
@@ -228,7 +242,7 @@ You can <a href="https://circleci.com/docs/2.0/executor-types/">read more</a>.
 
 ### Workflows:
 
-Workflows define a list of jobs and their run order. It is possible to run jobs in parallel, sequentially, on a schedule, or with a manual gate using an approval job.
+Workflows define a list of jobs and their run order. It is possible to run jobs in parallel, sequentially, on a schedule, or with a manual gate using an approval job. You can learn more from <a href="https://circleci.com/docs/2.0/workflows/">here</a>.
 
 <img alt="Workflows" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/workflows.png" width="950px" />
 
