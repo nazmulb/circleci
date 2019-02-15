@@ -102,7 +102,7 @@ You should see your build start to run automatically—and pass! So, what just h
 
 ### Step 5 - Breaking Your Build!:
 
-Edit your `config.yml` file and replace `echo "A first hello"` with `notacommand`. Now commit and push your changes in Github. When you navigate back to the Builds page in CircleCI, you will see that a new build was triggered. This build will fail with a red Failed button and will send you a notification email of the failure.
+Edit your `config.yml` file and replace `echo "A first hello"` with `notacommand`. Now commit and push your changes in Github repo. When you navigate back to the Builds page in CircleCI, you will see that a new build was triggered. This build will fail with a red Failed button and will send you a notification email of the failure.
 
 ```yml
 version: 2
@@ -116,3 +116,170 @@ jobs:
 ```
 
 <img alt="Breaking Your Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-failed.png" width="950px" />
+
+## Concepts:
+
+### Steps:
+
+Steps are actions that need to be taken to perform your job. Steps are usually a collection of executable commands. For example, the `checkout` step checks out the source code for a job. Then, the `run` step executes the `make test` command using a non-login shell by default.
+
+```yml
+#...
+    steps:
+      - checkout # Special step to checkout your source code
+      - run: # Run step to execute commands
+          name: Running tests
+          command: make test
+#...     
+```
+
+### Image:
+
+An image is a packaged system that has the instructions for creating a running container. The Primary Container is defined by the first image listed in `.circleci/config.yml` file. This is where commands are executed for jobs using the Docker executor.
+
+For convenience, CircleCI maintains several Docker images. These images are typically extensions of official Docker images and include tools especially useful for CI/CD. All of these pre-built images are available in the <a href="https://hub.docker.com/r/circleci/">CircleCI org on Docker Hub</a>.
+
+```yml
+version 2
+ jobs:
+   build1: # job name
+     docker: # Specifies the primary container image
+       - image: buildpack-deps:trusty
+
+       - image: postgres:9.4.1 # Specifies the database image
+        # for the secondary or service container run in a common
+        # network where ports exposed on the primary container are
+        # available on localhost.
+         environment: # Specifies the POSTGRES_USER auth environment variable
+           POSTGRES_USER: root
+...
+   build2:
+     machine: # Specifies a machine image that uses
+     # an Ubuntu version 14.04 image with Docker 17.06.1-ce
+     # and docker-compose 1.14.0, follow CircleCI Discuss Announcements
+     # for new image releases.
+       image: circleci/classic:201708-01
+...       
+   build3:
+     macos: # Specifies a macOS virtual machine with Xcode version 9.0
+       xcode: "9.0"       
+...          
+```
+
+### Jobs:
+
+Jobs are a collection of steps and each job must declare an executor that is either `docker`, `machine`, or `macos`. Machine includes a default image if not specified, for Docker and macOS, you must also declare an image.
+
+### Workflows:
+
+Workflows define a list of jobs and their run order. It is possible to run jobs in parallel, sequentially, on a schedule, or with a manual gate using an approval job.
+
+<img alt="Workflows" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/workflows.png" width="950px" />
+
+```yml
+version: 2
+jobs:
+  one:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - checkout
+      - run: echo "A first hello"
+      - run: mkdir -p my_workspace
+      - run: echo "Trying out workspaces" > my_workspace/echo-output
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory
+          root: my_workspace
+          # Must be relative path from root
+          paths:
+            - echo-output      
+  two:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - checkout
+      - run: echo "A more familiar hi"  
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: my_workspace
+      - run: 
+          name: Compare the result
+          command: |
+            if [[ $(cat my_workspace/echo-output) == "Trying out workspaces" ]]; then
+              echo "It worked!";
+            else
+              echo "Nope!"; exit 1
+            fi
+workflows:
+  version: 2
+  one_and_two:
+    jobs:
+      - one
+      - two:
+          requires:
+            - one
+```
+
+### Cache:
+
+Caching lets you reuse the data from expensive fetch operations from previous jobs. After the initial job run, future instances of the job will run faster by not redoing work. A prime example is package dependency managers such as Npm, Yarn, or Pip.
+
+<img alt="Cache" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Cache.png" width="950px" />
+
+```yml
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: 'circleci/node:8'
+    shell: /bin/bash
+    working_directory: ~/app
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json checksum
+            # when this file is changed, this key will fail
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Find the most recently generated cache used from any branch
+            - v1-npm-deps-
+      - run:
+          name: Install Node.js dependencies with Npm
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/app
+          paths:
+            - .
+  test:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Test
+          command: npm test
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+```
+
+### Workspaces:
+
+<img alt="Workspaces" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Workspaces.png" width="950px" />
+
+
+### Artifacts:
+
+<img alt="Artifact" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Artifact.png" width="950px" />
