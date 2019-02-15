@@ -404,11 +404,17 @@ workflows:
             - build
 ```
 
+You can learn more from <a herf="https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace">here</a>.
+
 ### Artifacts:
 
 Artifacts persist data after a workflow is completed and may be used for longer-term storage of the outputs of your build process. For instance if you have a Java project your build will most likely produce a `.jar` file of your code. This code will be validated by your tests. If the whole build/test process passes, then the output of the process (the `.jar`) can be stored as an artifact. The `.jar` file is available to download from our artifacts system long after the workflow that created it has finished.
 
 <img alt="Artifact" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Artifact.png" width="950px" />
+
+If a job produces persistent artifacts such as screenshots, coverage reports, core files, or deployment tarballs, CircleCI can automatically save and link them for you.
+
+<img alt="Artifacts" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/artifacts.png" width="950px" />
 
 ```yml
 version: 2.1
@@ -471,3 +477,5 @@ workflows:
           requires:
             - build
 ```
+
+For <a href="https://circleci.com/docs/2.0/artifacts/">more info</a>.
