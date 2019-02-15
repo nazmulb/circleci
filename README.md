@@ -99,3 +99,20 @@ You should see your build start to run automatically—and pass! So, what just h
 - **echo:** This was the only other instruction in your `config.yml` file: CircleCI ran the `echo` command with the input “A first hello”.
 
 <img alt="Running Your First CircleCI Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-pass.png" width="850px" />
+
+### Step 5 - Breaking Your Build!:
+
+Edit your `config.yml` file and replace `echo "A first hello"` with `notacommand`. Now commit and push your changes in Github. When you navigate back to the Builds page in CircleCI, you will see that a new build was triggered. This build will fail with a red Failed button and will send you a notification email of the failure.
+
+```yml
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.10
+    steps:
+      - checkout
+      - run: notacommand
+```
+
+<img alt="Breaking Your Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build-failed.png" width="850px" />
