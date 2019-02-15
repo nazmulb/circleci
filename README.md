@@ -296,6 +296,12 @@ Caching lets you reuse the data from expensive fetch operations from previous jo
 
 <img alt="Cache" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Diagram-v3-Cache.png" width="950px" />
 
+#### Restoring Cache:
+
+CircleCI restores caches in the order of keys listed in the `restore_cache` step. Each cache key is namespaced to the project, and retrieval is prefix-matched. The cache will be restored from the first matching key. If there are multiple matches, the most recently generated cache will be used.
+
+Language dependency manager lockfiles (for example, `package-lock.json`) checksums may be a useful cache key.
+
 ```yml
 version: 2.1
 executors:
@@ -324,6 +330,22 @@ jobs:
             - ./node_modules
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
 ```
+
+##### Clearing Cache:
+
+If you need to get clean caches when your language or dependency management tool versions change, use a naming strategy similar to the previous example and then change the cache key names in your `config.yml` file and commit the change to clear the cache.
+
+Caches are immutable so it is useful to start all your cache keys with a version prefix, for example `v1-...`. This enables you to regenerate all of your caches by incrementing the version in this prefix. 
+
+For example, you may want to clear the cache in the following scenarios by incrementing the cache key name:
+
+- Dependency manager version change, for example, you change npm from 4 to 5
+- Language version change, for example, you change ruby 2.3 to 2.4
+- Dependencies are removed from your project
+
+#### Saving Cache:
+
+To save a cache of a file or directory, add the `save_cache` step to a job with a `key` and `paths` which are required to set. The path for directories is relative to the `working_directory` of your job. You can specify an absolute path if you choose. The caches created via the `save_cache` step are stored for up to **30 days**. For <a href="https://circleci.com/docs/2.0/caching/">more info</a>.
 
 ### Workspaces:
 
