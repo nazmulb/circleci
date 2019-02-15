@@ -168,7 +168,63 @@ version 2
 
 ### Jobs:
 
-Jobs are a collection of steps and each job must declare an executor that is either `docker`, `machine`, or `macos`. Machine includes a default image if not specified, for Docker and macOS, you must also declare an image.
+Jobs are a collection of steps. CircleCI enables you to run jobs in one of three environments:
+
+- Within Docker images (`docker`)
+- Within a Linux virtual machine (VM) image (`machine`)
+- Within a macOS VM image (`macos`)
+
+Machine includes a default image if not specified, for Docker and macOS, you must also declare an image.
+
+#### Using Docker:
+
+Using `docker` executor to build a Docker image requires <a href="https://circleci.com/docs/2.0/building-docker-images/">Remote Docker</a>
+
+```yml
+jobs:
+  build:
+    docker:
+      - image: buildpack-deps:trusty
+```
+
+#### Using Machine:
+
+Using the `machine` executor gives your application full access to OS resources and provides you with full control over the job environment. This control can be useful in situations where you need to use `ping` or modify the system with `sysctl` commands.
+
+Using the `machine` executor also enables you to build a Docker image without downloading additional packages for languages like Ruby and PHP.
+
+```yml
+version: 2
+jobs:
+  build:
+    machine: true
+```
+
+The default image for the machine executor is `circleci/classic:latest`. You can specify other images by using the `image` key.
+
+```yml
+version: 2
+jobs:
+  build:
+    machine:
+      image: circleci/classic:2017-01  # pins image to specific version using YYYY-MM format
+```
+#### Using macOS:
+
+Using the `macos` executor allows you to run your job in a macOS environment on a VM. You can also specify which version of Xcode should be used.
+
+```yml
+jobs:
+  build:
+    macos:
+      xcode: "9.0"  
+    steps:
+      # Commands will execute in macOS container
+      # with Xcode 9.0 installed
+      - run: xcodebuild -version
+```
+
+You can <a href="https://circleci.com/docs/2.0/executor-types/">read more</a>.
 
 ### Workflows:
 
