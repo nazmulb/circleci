@@ -760,6 +760,6 @@ For <a href="https://circleci.com/docs/2.0/local-cli/#section=configuration">mor
 
 You can read from <a href="https://circleci.com/docs/2.0/ssh-access-jobs/">here</a>
 
-## How to set up CircleCI for a microservice CI/CD Pipeline?
+## How to set up CircleCI for CI/CD Pipeline of a microservice?
 
 TODO
