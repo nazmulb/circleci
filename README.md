@@ -750,7 +750,7 @@ You can avoid pushing additional commits to test your `config.yml` by using the 
 
 To validate your config, navigate to a directory with a `.circleci/config.yml` file and run:
 
-```
+```cli
 circleci config validate
 # Config file at .circleci/config.yml is valid
 ```
