@@ -709,8 +709,54 @@ For <a href="https://circleci.com/docs/2.0/reusing-config/#using-the-parameters-
 
 ## Using the CircleCI Local CLI:
 
-<a href="https://circleci.com/docs/2.0/local-cli/">TODO</a>
+The CircleCI CLI is a command line interface that leverages many of CircleCI’s advanced and powerful tools from the comfort of your terminal. Some of the things you can do with the CircleCI CLI include:
+
+- Debug and validate your CI config
+- Run jobs locally
+- Query CircleCI’s API
+- Create, publish, view and manage Orbs
+
+### Quick Installation:
+
+#### Mac and Linux:
+
+For the majority of installations, the following commands will get you up and running with the CircleCI CLI:
+
+```
+curl -fLSs https://circle.ci/cli | bash
+```
+
+#### Install With Homebrew:
+
+If you’re using <a href="https://brew.sh/">Homebrew</a> with macOS, you can install the CLI with the following command:
+
+```
+brew install circleci
+```
+
+### Configuring The CLI:
+
+Before using the CLI you need to generate a CircleCI API Token from the <a href="https://circleci.com/account/api">Personal API Token tab</a>. After you get your token, configure the CLI by running:
+
+```
+circleci setup
+```
+
+Setup will prompt you for configuration settings. If you are using the CLI with circleci.com, use the default CircleCI Host.
+
+### Validate A CircleCI Config:
+
+You can avoid pushing additional commits to test your `config.yml` by using the CLI to validate your config locally.
+
+To validate your config, navigate to a directory with a `.circleci/config.yml` file and run:
+
+```
+circleci config validate
+# Config file at .circleci/config.yml is valid
+```
+
+For <a href="https://circleci.com/docs/2.0/local-cli/#section=configuration">more info</a>
 
 ## Debugging with SSH:
 
-<a href="https://circleci.com/docs/2.0/ssh-access-jobs/">TODO</a>
+You can read from <a href="https://circleci.com/docs/2.0/ssh-access-jobs/">here</a>
