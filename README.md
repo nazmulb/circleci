@@ -707,6 +707,30 @@ jobs: # a job that invokes the `aws` executor and the `sync` command
 
 For <a href="https://circleci.com/docs/2.0/reusing-config/#using-the-parameters-declaration">more info</a>
 
+### Contexts:
+
+Contexts are created on the Settings page of the CircleCI application, in the Organization section. You must be an Org Admin to view, create, or edit contexts. After a context is set in the application it may be configured in the workflows section of the config.yml file for a project.
+
+To use environment variables set on the Contexts page, the person running the workflow must be a member of the organization for which the context is set and the rule must allow access to all projects in the org.
+
+<img alt="Contexts" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Contexts.png" width="950px" />
+
+#### Creating and Using a Context:
+
+- As an Org Admin, Navigate to the Settings > Contexts page in the CircleCI application.
+- Click the Create Contexts button to add a unique name for your Context. After you click the Create button on the dialog box, the Context appears in a list with Security set to Public to indicate that anyone in your org can access this context at runtime.
+- Click the Add Environment Variable button and copy/paste in the variable name and value. Click the Add Variable button to save it.
+- Add the `context: <context name>` key to the `workflows` section of your `config.yml` file for every job in which you want to use the variable. In the following example, the run-tests job will use the variables set in the org-global context.
+
+```yml
+workflows:
+  version: 2
+  my-workflow:
+    jobs:
+      - run-tests:
+          context: org-global
+```
+
 ## Using the CircleCI Local CLI:
 
 The CircleCI CLI is a command line interface that leverages many of CircleCI’s advanced and powerful tools from the comfort of your terminal. Some of the things you can do with the CircleCI CLI include:
