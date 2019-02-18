@@ -147,6 +147,64 @@ It’s possible to specify a multi-line `command`, each line of which will be ru
 
 For <a href="https://circleci.com/docs/2.0/configuration-reference/#steps">more info</a>.
 
+#### Using Pre and Post Steps:
+
+Every job invocation may optionally accept two special arguments: `pre-steps` and `post-steps`. Steps under `pre-steps` are executed before any of the other steps in the job. The steps under `post-steps` are executed after all of the other steps.
+
+```yml
+version: 2.1
+jobs:
+  bar:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          command: echo "building"
+      - run:
+          command: echo "testing"
+workflows:
+  build:
+    jobs:
+      - bar:
+          pre-steps:
+            - run:
+                command: echo "install custom dependency"
+          post-steps:
+            - run:
+                command: echo "upload artifact to s3"
+```
+
+#### Conditional Steps:
+
+Conditional steps allow the definition of steps that only run if a condition is met. If `condition` is met, the subkey `steps` are run. A `condition` is a single value that evaluates to `true` or `false` at the time the config is processed.
+
+```yml
+version: 2.1
+jobs:
+  myjob:
+    parameters:
+      preinstall-foo:
+        type: boolean
+        default: false
+    machine: true
+    steps:
+      - run: echo "preinstall is << parameters.preinstall-foo >>"
+      - when:
+          condition: << parameters.preinstall-foo >>
+          steps:
+            - run: echo "preinstall"
+
+workflows:
+  workflow:
+    jobs:
+      - myjob:
+          preinstall-foo: false
+      - myjob:
+          preinstall-foo: true
+```
+
+For <a href="https://circleci.com/docs/2.0/reusing-config/#defining-conditional-steps">more info</a>
+
 ### Image:
 
 An image is a packaged system that has the instructions for creating a running container. The Primary Container is defined by the first image listed in `.circleci/config.yml` file. This is where commands are executed for jobs using the Docker executor.
@@ -561,10 +619,98 @@ workflows:
       - test
 ```
 
-### Using the CircleCI Local CLI:
+For <a href="https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-executors">more info</a> 
+
+### Reusable Commands:
+
+A reusable command may have the following immediate children keys as a map:
+
+- **Description:** (optional) A string that describes the purpose of the command, used for generating documentation.
+- **Parameters:** (optional) A map of parameter keys, each of which adheres to the `parameter` spec.
+- **Steps:** (required) A sequence of steps run inside the calling job of the command.
+
+Commands are declared under the `commands` key of a `config.yml` file.
+
+```yml
+version: 2.1
+commands:
+  sayhello:
+    description: "A very simple command for demonstration purposes"
+    parameters:
+      to:
+        type: string
+        default: "Hello World"
+    steps:
+      - run: echo Hello << parameters.to >>
+
+jobs:
+  myjob:
+    docker:
+      - image: "circleci/node:9.6.1"
+    steps:
+      - checkout
+      - sayhello:
+          to: "Nazmul"
+```
+
+### Parameters:
+
+Parameters are declared by name under a job, command, or executor. The immediate children of the `parameters` key are a set of keys in a map.
+
+A parameter can have the following keys as immediate children:
+
+- **Description:** (optional) Used to generate documentation for your orb.
+- **type:** (required) See Parameter Types in the section below for details.
+- **default:** (optional) The default value for the parameter. If not present, the parameter is implied to be required.
+
+The parameter types supported are:
+
+- string
+- boolean
+- integer
+- enum
+- executor
+- steps
+- environment variable name
+
+The following example defines a command called `sync`:
+
+```yml
+version: 2.1
+commands: # a reusable command with parameters
+  sync:
+    parameters:
+      from:
+        type: string
+      to:
+        type: string
+      overwrite:
+        default: false
+        type: boolean
+    steps:
+      - run: # a parameterized run step
+          name: Deploy to S3
+          command: "aws s3 sync << parameters.from >> << parameters.to >><<# parameters.overwrite >> --delete<</ parameters.overwrite >>"
+executors: # a reusable executor
+  aws:
+    docker:
+      - image: cibuilds/aws:1.15
+jobs: # a job that invokes the `aws` executor and the `sync` command
+  deploy2s3:
+    executor: aws
+    steps:
+      - sync:
+          from: .
+          to: "s3://mybucket_uri"
+          overwrite: true
+```
+
+For <a href="https://circleci.com/docs/2.0/reusing-config/#using-the-parameters-declaration">more info</a>
+
+## Using the CircleCI Local CLI:
 
 <a href="https://circleci.com/docs/2.0/local-cli/">TODO</a>
 
-### Debugging with SSH:
+## Debugging with SSH:
 
 <a href="https://circleci.com/docs/2.0/ssh-access-jobs/">TODO</a>
