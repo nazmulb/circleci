@@ -731,6 +731,8 @@ workflows:
           context: org-global
 ```
 
+You can read from <a href="https://circleci.com/docs/2.0/contexts/#section=projects">here</a>
+
 ## Using the CircleCI Local CLI:
 
 The CircleCI CLI is a command line interface that leverages many of CircleCI’s advanced and powerful tools from the comfort of your terminal. Some of the things you can do with the CircleCI CLI include:
