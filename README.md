@@ -910,7 +910,7 @@ workflows:
               only: master
 ```
 
-I am using <a href="https://circleci.com/orbs/registry/orb/circleci/slack">slack orbs</a> to send slack message for notifying the start and end of the build process. Frist, I created a new channel (e.g. `cicd`) in Slack. Then from Slack, I added CircleCI app and set a webhook for CircleCI.
+I am using <a href="https://circleci.com/orbs/registry/orb/circleci/slack">slack orbs</a> to send slack message for notifying the start and end of the build process. First, I created a new channel (e.g. `cicd`) in Slack. Then from Slack, I added CircleCI app and set a webhook for CircleCI.
 
 <img alt="Add apps..." src="https://raw.githubusercontent.com/nazmulb/drone.io/master/images/add-apps.png" width="240px" />
 
