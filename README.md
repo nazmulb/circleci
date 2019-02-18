@@ -83,7 +83,7 @@ Please commit and push this changes in your new repo `circleci-101`.
 ### Step 3 - Setting up Your Build on CircleCI:
 
 - For this step, you will need a CircleCI account. Visit the CircleCI <a href="https://circleci.com/signup">signup page</a> and click “Sign Up with GitHub”. You will need to give CircleCI access to your GitHub account to run your builds. If you already have a CircleCI account then you can navigate to your <a href="https://circleci.com/dashboard">dashboard</a>.
-- Next, you need to add you repo as a new project on CircleCI. To add your new repo, ensure that your GitHub account is selected in the dropdown in the upper-left, find the repository you just created below, and click the **Setup project** button next to it.
+- Next, you need to add your repo as a new project on CircleCI. To add your new repo, ensure that your GitHub account is selected in the dropdown in the upper-left, find the repository you just created below, and click the **Setup project** button next to it.
 <img alt="Add Project" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/add-project.png" width="950px" />
 
 - On the next screen, you’re given some options for configuring your project on CircleCI. Leave everything as-is for now and just click the **Start building** button a bit down the page on the right. 
@@ -788,4 +788,160 @@ You can read from <a href="https://circleci.com/docs/2.0/ssh-access-jobs/">here<
 
 ## How to set up CircleCI for CI/CD Pipeline of a microservice?
 
-TODO
+### Step 1 - Creating a Repository:
+
+Navigate to your account on GitHub.com and create a new repo node-microservice. I have a <a href="https://github.com/nazmulb/node-microservice">node-microservice</a> sample project repo, I am going to use this repo for this setup. Please clone <a href="https://github.com/nazmulb/node-microservice">node-microservice</a>.
+
+If you already cloned <a href="https://github.com/nazmulb/node-microservice">my repo</a> then you would find a folder `.circleci`. And this folder has two files: `.circleci/config.yml` and `.circleci/deploy.sh`.
+
+<img alt="node-microservice" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/repo.png" width="290px" />
+
+#### config.yml:
+
+```yml
+version: 2.1
+executors:
+  node:
+    docker:
+      - image: 'circleci/node:9.8.0'
+    shell: /bin/bash
+    working_directory: ~/app
+    environment:
+      SLACK_WEBHOOK: https://hooks.slack.com/services/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
+   
+orbs:
+  slack: circleci/slack@volatile
+  docker-publish: circleci/docker-publish@0.1.4
+
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json checksum
+            # when this file is changed, this key will fail
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Find the most recently generated cache used from any branch
+            - v1-npm-deps-
+      - run:
+          name: Install Node.js dependencies with Npm
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      - persist_to_workspace:
+          root: ~/app
+          paths:
+            - .
+
+  test:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Test
+          command: npm test
+      - run:
+          name: Save test results
+          command: |
+            npm install nyc mocha-junit-reporter
+            mkdir ~/reports
+            ./node_modules/.bin/nyc ./node_modules/.bin/mocha spec.js --recursive --timeout=10000 --exit --reporter mocha-junit-reporter --reporter-options mochaFile=~/reports/mocha/test-results.xml
+          environment:
+            MOCHA_FILE: ~/reports/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/reports
+      - store_artifacts:
+          path: ~/reports
+  
+  publish:
+      executor: node
+      steps:
+        - attach_workspace:
+            at: ~/app
+        - setup_remote_docker
+        - docker-publish/check # DOCKER_LOGIN & DOCKER_PASSWORD need to be set as environment variable in the project of circleci.com.
+        - docker-publish/build: # It would build the docker image from Dockerfile.
+            tag: latest
+        - docker-publish/deploy # It would publish the images to docker hub.
+
+  deploy:
+      executor: node
+      steps:
+        - attach_workspace:
+            at: ~/app
+        - setup_remote_docker
+        - run:
+            name: Deploy
+            command: |
+              sh ./.circleci/deploy.sh
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:
+          pre-steps:
+            - slack/notify:
+                message: Build of ${CIRCLE_BRANCH} started.
+                color: '#42e2f4'
+                webhook: ${SLACK_WEBHOOK}
+      - test:
+          requires:
+            - build
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy:
+          post-steps:
+            - slack/status:
+                webhook: ${SLACK_WEBHOOK}
+          requires:
+            - publish
+          filters:
+            branches:
+              only: master
+```
+
+I am using <a href="https://circleci.com/orbs/registry/orb/circleci/slack">slack orbs</a> to send slack message for notifying the start and end of the build process. Frist, I created a new channel (e.g. `cicd`) in Slack. Then from Slack, I added CircleCI app and set a webhook for CircleCI.
+
+<img alt="Add apps..." src="https://raw.githubusercontent.com/nazmulb/drone.io/master/images/add-apps.png" width="240px" />
+
+<img alt="Incoming Webhooks" src="https://raw.githubusercontent.com/nazmulb/drone.io/master/images/incoming-webhooks.png" width="500px" />
+
+#### deploy.sh:
+
+```yml
+#!/bin/bash
+set -e
+
+docker pull nazmulb/node-microservice
+docker run --rm -d -p 7777:3000 --name nazmul_node_micro nazmulb/node-microservice
+```
+
+### Step 2 - Setting up Your Build on CircleCI:
+
+You need to add your repo as a new project on CircleCI. You will get ADD PROJECTS link from the left menu on CircleCI. Please follow <a href="https://github.com/nazmulb/circleci#step-3---setting-up-your-build-on-circleci">this same step</a> to setup.
+
+### Step 3 - Set Environment Variables:
+
+In the CircleCI application, go to your project’s settings by clicking the gear icon next to your project. In the **Build Settings** section, click on **Environment Variables**. Please add your <a href="https://hub.docker.com">Docker Hub</a> login info to publish the build image by setting `DOCKER_LOGIN` and	`DOCKER_PASSWORD`.
+
+<img alt="Environment Variables" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/environment-variables.png" width="950px" />
+
+### Step 4 - Run:
+
+Now If I change any file from **node-microservice** repo and push that change then I can see the full CI/CD process steps from the CircleCI server.
+
+<img alt="Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build1.png" width="950px" />
+
+<img alt="Build" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/build2.png" width="950px" />
+
+Happy learning :)
