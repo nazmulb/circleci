@@ -57,6 +57,17 @@ jobs:
 #### Knowledgeable Support
 - <a href="https://discuss.circleci.com/">Active community</a> forums provide access to other developers with similar environments.
 
+## Why not Jenkins?
+
+For couple of reasons:
+- It has full docker support.
+- Server less easy setup.
+- You can see all logs of every steps.
+- You can directly ssh to the container for debugging and see the files, etc.
+- You don't need to set up all the plugins as it has all the necessary things as built-in.
+- Very fast execution for three different caching techniques. 
+- Easy to understand and have good documents and community support.
+
 ## How to set up CircleCI?
 
 ### Step 1 - Creating a Repository:
