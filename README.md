@@ -174,7 +174,7 @@ jobs:
       - run:
           command: echo "testing"
 workflows:
-  build:
+  workflow1:
     jobs:
       - bar:
           pre-steps:
@@ -206,7 +206,7 @@ jobs:
             - run: echo "preinstall"
 
 workflows:
-  workflow:
+  workflow1:
     jobs:
       - myjob:
           preinstall-foo: false

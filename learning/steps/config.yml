@@ -9,7 +9,7 @@ jobs:
       - run:
           command: echo "testing"
 workflows:
-  build:
+  workflow1:
     jobs:
       - bar:
           pre-steps:

@@ -18,7 +18,7 @@ jobs:
             - run: echo "don't preinstall"
 
 workflows:
-  workflow:
+  workflow1:
     jobs:
       - myjob:
           preinstall-foo: false
