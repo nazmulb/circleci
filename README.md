@@ -876,7 +876,7 @@ jobs:
         - attach_workspace:
             at: ~/app
         - setup_remote_docker
-        - docker-publish/check # DOCKER_LOGIN & DOCKER_PASSWORD need to be set as environment variable in the project of circleci.com.
+        - docker-publish/check # DOCKER_LOGIN & DOCKER_PASSWORD need to be set as environment variable under a context of circleci.com.
         - docker-publish/build: # It would build the docker image from Dockerfile.
             tag: latest
         - docker-publish/deploy # It would publish the images to docker hub.
@@ -905,6 +905,7 @@ workflows:
           requires:
             - build
       - publish:
+          context: org-global
           requires:
             - test
           filters:
@@ -943,9 +944,13 @@ You need to add your repo as a new project on CircleCI. You will get ADD PROJECT
 
 ### Step 3 - Set Environment Variables:
 
-In the CircleCI application, go to your project’s settings by clicking the gear icon next to your project. In the **Build Settings** section, click on **Environment Variables**. Please add your <a href="https://hub.docker.com">Docker Hub</a> login info to publish the build image by setting `DOCKER_LOGIN` and	`DOCKER_PASSWORD`.
+- As an Org Admin, Navigate to the Settings > Contexts page in the CircleCI application.
+- Click the Create Contexts button to add a unique name (e.g. `org-global`) for your Context. After you click the Create button on the dialog box, the Context appears in a list with Security set to Public to indicate that anyone in your org can access this context at runtime.
+- Click the Add Environment Variable button. Please add your <a href="https://hub.docker.com">Docker Hub</a> login info to publish the build image by setting `DOCKER_LOGIN` and	`DOCKER_PASSWORD`. Click the Add Variable button to save it.
 
-<img alt="Environment Variables" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/environment-variables.png" width="950px" />
+<img alt="Contexts" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/Contexts.png" width="950px" />
+
+<img alt="Contexts Environment Variables" src="https://raw.githubusercontent.com/nazmulb/circleci/master/images/contexts-env-var.png" width="950px" />
 
 ### Step 4 - Run:
 
